@@ -1,36 +1,76 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# mk_wedding
 
-## Getting Started
+Wedding website - Next.js + Tailwind, deployed to Cloudflare (Workers + static assets) via OpenNext. RSVPs are stored in Cloudflare D1.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router) + React 19 + TypeScript
+- Tailwind CSS v4
+- Cloudflare Workers (via [`@opennextjs/cloudflare`](https://opennext.js.org/cloudflare)) for hosting
+- Cloudflare D1 (SQLite) for RSVP storage
+- Wrangler 4 for local dev + deploy
+
+## Routes
+
+| Path                    | Purpose                                              |
+| ----------------------- | ---------------------------------------------------- |
+| `/`                     | Hero / landing                                       |
+| `/story`                | "Our story" timeline                                 |
+| `/schedule`             | Day-of event schedule + venue                        |
+| `/rsvp`                 | RSVP form (POSTs to `/api/rsvp`)                     |
+| `/api/rsvp`             | Writes a row into D1                                 |
+| `/admin`                | Password-protected RSVP list (Basic auth)            |
+| `/api/admin/rsvps.csv`  | CSV export (also Basic-auth protected)               |
+
+Admin auth uses HTTP Basic via `src/proxy.ts`. The username can be anything; the password is whatever `ADMIN_PASSWORD` is set to.
+
+## Edit site content
+
+Couple names, wedding date, venue, RSVP deadline, etc. all live in **`src/lib/site.ts`** - edit them in one place.
+
+Page-specific content lives next to each page:
+- "Our story" chapters: `src/app/story/page.tsx`
+- Schedule events: `src/app/schedule/page.tsx`
+- Meal choices: `src/app/api/rsvp/route.ts` (the `MEALS` set) and `src/app/rsvp/RsvpForm.tsx`
+
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
+cp .dev.vars.example .dev.vars   # set ADMIN_PASSWORD for local /admin
+npm run dev                       # next dev on http://localhost:3000
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+For the RSVP form and admin pages to work locally you also need a local D1 database:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npx wrangler d1 create mk-wedding-db   # one-time; paste the id into wrangler.jsonc
+npm run db:migrate:local                # applies migrations/0001_init.sql locally
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Production preview (Workers runtime, local)
 
-## Learn More
+```bash
+npm run preview
+```
 
-To learn more about Next.js, take a look at the following resources:
+This runs `opennextjs-cloudflare build && opennextjs-cloudflare preview`, which boots the actual Worker bundle in Wrangler - closer to production than `next dev`.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Deploy
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# one-time setup
+npx wrangler login
+npx wrangler d1 create mk-wedding-db   # paste id into wrangler.jsonc
+npx wrangler secret put ADMIN_PASSWORD # set a real password
+npm run db:migrate:remote               # apply schema to remote D1
 
-## Deploy on Vercel
+# every deploy
+npm run deploy
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The custom domain isn't set up yet. Once you have one, add a `routes` block to `wrangler.jsonc` or attach a custom domain via the Cloudflare dashboard.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Migrations
+
+SQL migrations live in `migrations/`. Add new files numbered sequentially (e.g. `0002_add_table.sql`) and run `npm run db:migrate:local` / `npm run db:migrate:remote`.

@@ -1,0 +1,24 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "mk-wedding",
+	"main": ".open-next/worker.js",
+	"compatibility_date": "2026-05-01",
+	"compatibility_flags": ["nodejs_compat", "global_fetch_strictly_public"],
+	"assets": {
+		"directory": ".open-next/assets",
+		"binding": "ASSETS"
+	},
+	"d1_databases": [
+		{
+			"binding": "DB",
+			"database_name": "mk-wedding-db",
+			// Run `wrangler d1 create mk-wedding-db` and paste the returned id here.
+			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"migrations_dir": "migrations"
+		}
+	],
+	"vars": {
+		// Override locally via .dev.vars; set production value with `wrangler secret put ADMIN_PASSWORD`.
+		"ADMIN_PASSWORD": "change-me-in-production"
+	}
+}
