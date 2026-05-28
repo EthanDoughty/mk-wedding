@@ -24,8 +24,8 @@ export async function POST(request: NextRequest) {
 	await db
 		.prepare(
 			`INSERT INTO rsvps
-			(id, created_at, guest_name, email, attending, plus_one_name, meal_choice, dietary_notes, message, gift_intent)
-			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+			(id, created_at, guest_name, email, attending, plus_one_name, meal_choice, dietary_notes, message, gift_intent, plus_one_meal_choice, plus_one_dietary_notes)
+			VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
 		)
 		.bind(
 			id,
@@ -38,6 +38,8 @@ export async function POST(request: NextRequest) {
 			parsed.value.dietary_notes,
 			parsed.value.message,
 			parsed.value.gift_intent,
+			parsed.value.plus_one_meal_choice,
+			parsed.value.plus_one_dietary_notes,
 		)
 		.run();
 
@@ -53,6 +55,8 @@ type ParsedRsvp = {
 	dietary_notes: string | null;
 	message: string | null;
 	gift_intent: string | null;
+	plus_one_meal_choice: string | null;
+	plus_one_dietary_notes: string | null;
 };
 
 function parseRsvp(
@@ -74,22 +78,40 @@ function parseRsvp(
 		return { ok: false, error: "Invalid email" };
 	}
 
-	const plus_one_name = str(v.plus_one_name)?.trim() || null;
+	let plus_one_name = str(v.plus_one_name)?.trim() || null;
+	if (plus_one_name && plus_one_name.length > 200) {
+		plus_one_name = plus_one_name.slice(0, 200);
+	}
 
 	let meal_choice = str(v.meal_choice)?.trim() || null;
 	if (meal_choice && !MEALS.has(meal_choice)) {
 		return { ok: false, error: "Invalid meal choice" };
 	}
-	if (!attending) meal_choice = null;
 
 	let gift_intent = str(v.gift_intent)?.trim() || null;
 	if (gift_intent && !GIFT_INTENTS.has(gift_intent)) {
 		return { ok: false, error: "Invalid gift intent" };
 	}
-	if (!attending) gift_intent = null;
+
+	let plus_one_meal_choice = str(v.plus_one_meal_choice)?.trim() || null;
+	if (plus_one_meal_choice && !MEALS.has(plus_one_meal_choice)) {
+		return { ok: false, error: "Invalid plus-one meal choice" };
+	}
 
 	const dietary_notes = trunc(str(v.dietary_notes)?.trim(), 500);
 	const message = trunc(str(v.message)?.trim(), 1000);
+	let plus_one_dietary_notes = trunc(str(v.plus_one_dietary_notes)?.trim(), 500);
+
+	if (!attending) {
+		plus_one_name = null;
+		meal_choice = null;
+		gift_intent = null;
+		plus_one_meal_choice = null;
+		plus_one_dietary_notes = null;
+	} else if (!plus_one_name) {
+		plus_one_meal_choice = null;
+		plus_one_dietary_notes = null;
+	}
 
 	return {
 		ok: true,
@@ -102,6 +124,8 @@ function parseRsvp(
 			dietary_notes,
 			message,
 			gift_intent,
+			plus_one_meal_choice,
+			plus_one_dietary_notes,
 		},
 	};
 }

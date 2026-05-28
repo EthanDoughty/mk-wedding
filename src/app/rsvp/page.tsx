@@ -10,7 +10,7 @@ export default function RsvpPage() {
 		<div className="mx-auto max-w-xl px-6 py-20">
 			<header className="text-center">
 				<p className="font-serif italic text-accent uppercase tracking-[0.3em] text-xs">
-					Kindly reply by {site.rsvpDeadlineDisplay}
+					Kindly reply
 				</p>
 				<h1 className="font-serif text-5xl sm:text-6xl mt-4 text-foreground">
 					RSVP

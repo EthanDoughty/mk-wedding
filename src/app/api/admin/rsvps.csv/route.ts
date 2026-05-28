@@ -8,9 +8,11 @@ const HEADERS = [
 	"email",
 	"attending",
 	"gift_intent",
-	"plus_one_name",
 	"meal_choice",
 	"dietary_notes",
+	"plus_one_name",
+	"plus_one_meal_choice",
+	"plus_one_dietary_notes",
 	"message",
 ] as const;
 
@@ -29,9 +31,11 @@ export async function GET() {
 				r.email ?? "",
 				r.attending === 1 ? "yes" : "no",
 				r.gift_intent ?? "",
-				r.plus_one_name ?? "",
 				r.meal_choice ?? "",
 				r.dietary_notes ?? "",
+				r.plus_one_name ?? "",
+				r.plus_one_meal_choice ?? "",
+				r.plus_one_dietary_notes ?? "",
 				r.message ?? "",
 			]
 				.map(csvCell)

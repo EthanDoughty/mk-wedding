@@ -16,16 +16,11 @@ export default function Home() {
 				{site.partnerTwo}
 			</h1>
 
-			<div className="mt-12 inline-flex flex-col items-center gap-2 border-y-4 border-rule py-5 px-10">
-				<p className="font-serif text-2xl text-foreground">
-					{site.weddingDateDisplay}
-				</p>
-				<p className="text-muted text-xs uppercase tracking-[0.25em]">
-					{site.venueName}
-				</p>
-			</div>
+			<p className="mt-10 text-muted text-xs uppercase tracking-[0.3em]">
+				Date and venue to come
+			</p>
 
-			<div className="mt-12 flex justify-center gap-4">
+			<div className="mt-12 flex flex-wrap justify-center gap-4">
 				<Link
 					href="/rsvp"
 					className="border-4 border-rule bg-accent px-10 py-3 text-white text-xs tracking-[0.25em] uppercase font-medium hover:bg-accent-dark transition-colors"
@@ -38,12 +33,13 @@ export default function Home() {
 				>
 					Schedule
 				</Link>
+				<Link
+					href="/songs"
+					className="border-4 border-rule bg-surface px-10 py-3 text-foreground text-xs tracking-[0.25em] uppercase font-medium hover:bg-accent hover:text-white transition-colors"
+				>
+					Playlist
+				</Link>
 			</div>
-
-			<p className="mt-14 text-muted text-xs uppercase tracking-[0.25em]">
-				Please respond by{" "}
-				<span className="text-accent">{site.rsvpDeadlineDisplay}</span>
-			</p>
 		</div>
 	);
 }

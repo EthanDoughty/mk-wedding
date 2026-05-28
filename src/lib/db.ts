@@ -16,6 +16,8 @@ export type RsvpRow = {
 	dietary_notes: string | null;
 	message: string | null;
 	gift_intent: string | null;
+	plus_one_meal_choice: string | null;
+	plus_one_dietary_notes: string | null;
 };
 
 export type GiftIntent = "gift" | "money" | "presence";

@@ -19,7 +19,7 @@ const serif = Cormorant_Garamond({
 
 export const metadata: Metadata = {
 	title: `${site.partnerOne} & ${site.partnerTwo}`,
-	description: `Join us as we celebrate our wedding on ${site.weddingDateDisplay}.`,
+	description: "Join us as we celebrate our wedding.",
 };
 
 export default function RootLayout({

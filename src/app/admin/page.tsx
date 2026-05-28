@@ -55,9 +55,9 @@ export default async function AdminPage() {
 								<Th>Email</Th>
 								<Th>Status</Th>
 								<Th>Gift</Th>
+								<Th>Guest meal</Th>
+								<Th>Guest dietary</Th>
 								<Th>+1</Th>
-								<Th>Meal</Th>
-								<Th>Notes</Th>
 								<Th>Message</Th>
 							</tr>
 						</thead>
@@ -81,10 +81,26 @@ export default async function AdminPage() {
 										)}
 									</Td>
 									<Td>{giftIntentLabel(r.gift_intent)}</Td>
-									<Td>{r.plus_one_name ?? "-"}</Td>
 									<Td className="capitalize">{r.meal_choice ?? "-"}</Td>
-									<Td className="max-w-[200px] text-muted">
+									<Td className="max-w-[180px] text-muted">
 										{r.dietary_notes ?? "-"}
+									</Td>
+									<Td className="max-w-[220px]">
+										{r.plus_one_name ? (
+											<div className="space-y-1">
+												<p className="text-foreground">{r.plus_one_name}</p>
+												<p className="text-muted text-xs capitalize">
+													Meal: {r.plus_one_meal_choice ?? "no preference"}
+												</p>
+												{r.plus_one_dietary_notes && (
+													<p className="text-muted text-xs">
+														Dietary: {r.plus_one_dietary_notes}
+													</p>
+												)}
+											</div>
+										) : (
+											"-"
+										)}
 									</Td>
 									<Td className="max-w-[260px] text-muted">
 										{r.message ?? "-"}

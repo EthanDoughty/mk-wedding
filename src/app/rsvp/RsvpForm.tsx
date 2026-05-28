@@ -20,6 +20,7 @@ const OPTIONS: { key: Option; label: string; variant: "emerald" | "crimson" }[] 
 
 export function RsvpForm() {
 	const [option, setOption] = useState<Option | null>(null);
+	const [hasPlusOne, setHasPlusOne] = useState(false);
 	const [status, setStatus] = useState<Status>({ kind: "idle" });
 	const attending = option !== null && option !== "no";
 
@@ -30,14 +31,21 @@ export function RsvpForm() {
 			return;
 		}
 		const form = new FormData(e.currentTarget);
+		const plusOneActive = attending && hasPlusOne;
 		const payload = {
 			guest_name: form.get("guest_name"),
 			email: form.get("email"),
 			attending,
 			gift_intent: attending ? option : null,
-			plus_one_name: form.get("plus_one_name"),
-			meal_choice: form.get("meal_choice"),
-			dietary_notes: form.get("dietary_notes"),
+			meal_choice: attending ? form.get("meal_choice") : null,
+			dietary_notes: attending ? form.get("dietary_notes") : null,
+			plus_one_name: plusOneActive ? form.get("plus_one_name") : null,
+			plus_one_meal_choice: plusOneActive
+				? form.get("plus_one_meal_choice")
+				: null,
+			plus_one_dietary_notes: plusOneActive
+				? form.get("plus_one_dietary_notes")
+				: null,
 			message: form.get("message"),
 		};
 
@@ -108,33 +116,40 @@ export function RsvpForm() {
 
 			{attending && (
 				<>
-					<Field
-						label="Plus one (full name, if applicable)"
-						name="plus_one_name"
-					/>
-
-					<div>
-						<label className="block text-xs font-medium text-foreground uppercase tracking-[0.2em] mb-2">
-							Meal preference
-						</label>
-						<select
-							name="meal_choice"
-							defaultValue=""
-							className="w-full border-2 border-rule bg-background text-foreground px-3 py-2 text-sm focus:border-accent focus:outline-none"
-						>
-							<option value="">No preference</option>
-							<option value="chicken">Chicken</option>
-							<option value="fish">Fish</option>
-							<option value="veggie">Vegetarian</option>
-						</select>
-					</div>
+					<MealSelect name="meal_choice" label="Your meal preference" />
 
 					<Field
-						label="Dietary restrictions / allergies"
+						label="Your dietary restrictions / allergies"
 						name="dietary_notes"
 						multiline
 						maxLength={500}
 					/>
+
+					<PlusOneToggle
+						checked={hasPlusOne}
+						onChange={setHasPlusOne}
+					/>
+
+					{hasPlusOne && (
+						<div className="border-l-4 border-accent pl-5 space-y-6">
+							<Field
+								label="Plus one full name"
+								name="plus_one_name"
+								required
+								maxLength={200}
+							/>
+							<MealSelect
+								name="plus_one_meal_choice"
+								label="Plus one meal preference"
+							/>
+							<Field
+								label="Plus one dietary restrictions / allergies"
+								name="plus_one_dietary_notes"
+								multiline
+								maxLength={500}
+							/>
+						</div>
+					)}
 				</>
 			)}
 
@@ -207,6 +222,67 @@ function Field({
 				/>
 			)}
 		</div>
+	);
+}
+
+function MealSelect({ name, label }: { name: string; label: string }) {
+	return (
+		<div>
+			<label
+				htmlFor={name}
+				className="block text-xs font-medium text-foreground uppercase tracking-[0.2em] mb-2"
+			>
+				{label}
+			</label>
+			<select
+				id={name}
+				name={name}
+				defaultValue=""
+				className="w-full border-2 border-rule bg-background text-foreground px-3 py-2 text-sm focus:border-accent focus:outline-none"
+			>
+				<option value="">No preference</option>
+				<option value="chicken">Chicken</option>
+				<option value="fish">Fish</option>
+				<option value="veggie">Vegetarian</option>
+			</select>
+		</div>
+	);
+}
+
+function PlusOneToggle({
+	checked,
+	onChange,
+}: {
+	checked: boolean;
+	onChange: (next: boolean) => void;
+}) {
+	return (
+		<label className="flex items-center gap-3 cursor-pointer select-none">
+			<input
+				type="checkbox"
+				className="sr-only peer"
+				checked={checked}
+				onChange={(e) => onChange(e.target.checked)}
+			/>
+			<span
+				aria-hidden
+				className="flex items-center justify-center w-6 h-6 border-4 border-rule bg-background peer-checked:bg-accent peer-focus-visible:ring-2 peer-focus-visible:ring-accent text-white text-sm leading-none transition-colors"
+			>
+				{checked && (
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						viewBox="0 0 16 16"
+						fill="currentColor"
+						className="w-3 h-3"
+					>
+						<path d="M13.78 4.22a.75.75 0 0 1 0 1.06l-7.25 7.25a.75.75 0 0 1-1.06 0L2.22 9.28a.75.75 0 1 1 1.06-1.06L6 10.94l6.72-6.72a.75.75 0 0 1 1.06 0Z" />
+					</svg>
+				)}
+			</span>
+			<span className="text-xs font-medium text-foreground uppercase tracking-[0.15em]">
+				I&apos;m bringing a plus one
+			</span>
+		</label>
 	);
 }
 
