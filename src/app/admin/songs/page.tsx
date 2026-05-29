@@ -1,4 +1,5 @@
 import { getDB, type SongRow } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Admin | Songs" };
 export const dynamic = "force-dynamic";
@@ -26,6 +27,7 @@ const PLATFORM_LABEL: Record<string, string> = {
 };
 
 export default async function AdminSongsPage() {
+	await requireAdmin();
 	const db = await getDB();
 	const { results = [] } = await db
 		.prepare("SELECT * FROM songs ORDER BY created_at DESC")

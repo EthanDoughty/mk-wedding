@@ -1,4 +1,5 @@
 import { getDB, type RsvpRow } from "@/lib/db";
+import { isAdmin } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -17,6 +18,9 @@ const HEADERS = [
 ] as const;
 
 export async function GET() {
+	if (!(await isAdmin())) {
+		return new Response("Unauthorized", { status: 401 });
+	}
 	const db = await getDB();
 	const { results = [] } = await db
 		.prepare("SELECT * FROM rsvps ORDER BY created_at DESC")

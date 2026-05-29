@@ -13,12 +13,11 @@
 			"binding": "DB",
 			"database_name": "mk-wedding-db",
 			// Run `wrangler d1 create mk-wedding-db` and paste the returned id here.
-			"database_id": "REPLACE_WITH_D1_DATABASE_ID",
+			"database_id": "d9f1623e-9630-4d58-a610-2cc2a6946f55",
 			"migrations_dir": "migrations"
 		}
-	],
-	"vars": {
-		// Override locally via .dev.vars; set production value with `wrangler secret put ADMIN_PASSWORD`.
-		"ADMIN_PASSWORD": "change-me-in-production"
-	}
+	]
+	// ADMIN_PASSWORD is supplied per environment:
+	//   - local dev:  .dev.vars (gitignored)
+	//   - production: `wrangler secret put ADMIN_PASSWORD`
 }

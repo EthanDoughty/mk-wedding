@@ -1,9 +1,11 @@
 import { getDB, giftIntentLabel, type RsvpRow } from "@/lib/db";
+import { requireAdmin } from "@/lib/auth";
 
 export const metadata = { title: "Admin | RSVPs" };
 export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
+	await requireAdmin();
 	const db = await getDB();
 	const result = await db
 		.prepare("SELECT * FROM rsvps ORDER BY created_at DESC")
@@ -38,6 +40,14 @@ export default async function AdminPage() {
 					>
 						Download CSV
 					</a>
+					<form method="POST" action="/api/admin/logout">
+						<button
+							type="submit"
+							className="border-4 border-rule bg-surface text-muted px-5 py-2 text-xs uppercase tracking-[0.2em] hover:bg-rule hover:text-foreground transition-colors"
+						>
+							Log out
+						</button>
+					</form>
 				</div>
 			</header>
 
